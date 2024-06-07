@@ -1,0 +1,24 @@
+userId,month,amount,type,category,details,date,tranId
+user123,JAN,100,income,salary,-,2024-1-1,24010156
+user123,JAN,200,income,salary,-,2024-1-3,24010382
+user123,JAN,39,expense,transportation,this week,2024-1-8,24010813
+user123,FEB,501,income,freelance,salary,2024-2-1,24020174
+user123,FEB,40,income,rental income,salary,2024-2-3,24020365
+user122,FEB,70,expense,groceries,weekly,2024-2-10,24021049
+user122,MAR,150,income,freelance,monthly,2024-3-15,24031532
+user344,JAN,300,income,bonus,quarterly,2024-1-20,24012057
+user344,FEB,25,expense,utilities,monthly,2024-2-15,24021591
+user344,MAR,100,expense,entertainment,monthly,2024-3-12,24031284
+user345,JAN,500,income,salary,this month,2024-1-11,24011196
+user345,FEB,0.50,income,salary,lool,2024-2-1,24020118
+user345,FEB,0.50,savings,dunno,future,2024-2-3,24020373
+user345,FEB,12,expense,food,daily,2024-2-5,24020547
+user566,NOV,1000.0,income,investment,loool,2024-11-13,24111028
+user566,DEC,100,expense,travel,year-end,2024-12-20,24122064
+user566,DEC,250,income,bonus,annual,2024-12-30,24123091
+user567,NOV,120,income,salary,lambat,2024-11-5,24110576
+user789,APR,75,expense,clothing,seasonal,2024-4-5,24040525
+user789,MAY,200,income,part-time job,weekly,2024-5-10,24051041
+user789,MAY,50,expense,transport,monthly,2024-5-15,24051587
+user345,JAN,49.0,expense,shopping,monthly,2024-01-31,24013197
+user123,FEB,300.0,income,dfafd,dfadff,2024-02-12,24021262
