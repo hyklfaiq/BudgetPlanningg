@@ -17,39 +17,7 @@ public class BudgetApp {
         this.budgetAmount = budgetAmount;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getMonth() {
-        return month;
-    }
-
-    public void setMonth(String month) {
-        this.month = month;
-    }
-
-    public String getBudgetCategory() {
-        return budgetCategory;
-    }
-
-    public void setBudgetCategory(String budgetCategory) {
-        this.budgetCategory = budgetCategory;
-    }
-
-    public double getBudgetAmount() {
-        return budgetAmount;
-    }
-
-    public void setBudgetAmount(double budgetAmount) {
-        this.budgetAmount = budgetAmount;
-    }
-
-    // Add to file
+    // Save budget to file
     public void SaveBudget() {
         ArrayList<String> budgetFileContent = new ArrayList<>();
         boolean found = false;
@@ -83,7 +51,7 @@ public class BudgetApp {
 
     // Read budget for a specific month and category
     public static double readBudget(String userId, String month, String category) {
-        double budgetAmount = 0.0;
+        double budgetAmount = 0.00;
 
         try (Scanner scanner = new Scanner(new File("BudgetData.txt"))) {
             while (scanner.hasNextLine()) {
@@ -110,16 +78,22 @@ public class BudgetApp {
                 String line = readFile.nextLine();
                 String[] delimiter = line.split(",");
                 if (userId.equals(delimiter[0]) && month.equals(delimiter[1]) && delimiter[3].equals("expense")) {
-                    if (delimiter[4].equals("utility")) {
-                        utilitiesExpense += Double.parseDouble(delimiter[2]);
-                    } else if (delimiter[4].equals("groceries")) {
-                        groceriesExpense += Double.parseDouble(delimiter[2]);
-                    } else if (delimiter[4].equals("transportation")) {
-                        transportationExpense += Double.parseDouble(delimiter[2]);
-                    } else if (delimiter[4].equals("insurance")) {
-                       insuranceExpense += Double.parseDouble(delimiter[2]);
-                    } else if (delimiter[4].equals("others")) {
-                        otherExpense += Double.parseDouble(delimiter[2]);
+                    switch (delimiter[4]) {
+                        case "utility":
+                            utilitiesExpense += Double.parseDouble(delimiter[2]);
+                            break;
+                        case "groceries":
+                            groceriesExpense += Double.parseDouble(delimiter[2]);
+                            break;
+                        case "transportation":
+                            transportationExpense += Double.parseDouble(delimiter[2]);
+                            break;
+                        case "insurance":
+                            insuranceExpense += Double.parseDouble(delimiter[2]);
+                            break;
+                        case "others":
+                            otherExpense += Double.parseDouble(delimiter[2]);
+                            break;
                     }
                 }
             }
@@ -129,6 +103,4 @@ public class BudgetApp {
 
         return new double[]{utilitiesExpense, groceriesExpense, transportationExpense, insuranceExpense, otherExpense};
     }
-
-
 }

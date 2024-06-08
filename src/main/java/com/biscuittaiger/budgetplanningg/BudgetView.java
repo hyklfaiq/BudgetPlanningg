@@ -1,7 +1,6 @@
 package com.biscuittaiger.budgetplanningg;
 
 import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -33,67 +32,82 @@ public class BudgetView extends Application {
         HBox box = new HBox(40);
         VBox leftBox = new VBox(40);
         VBox rightBox = new VBox(40);
-        VBox monthSection = new VBox(10);
-        VBox categorySection = new VBox(10);
-     VBox amountSection = new VBox(10);
-
+        VBox monthBox = new VBox(10);
+        VBox categoryBox = new VBox(10);
+        VBox amountBox = new VBox(10);
+        VBox expenseBox = new VBox(10);
+        VBox comparisonBox = new VBox(10);
+        VBox budgetBox = new VBox(10);
 
 
         // Title
-        Label titleLabel = new Label("Budget Tracker");
-        titleLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
+        Label titleLabel = new Label("Budget Planning");
+        titleLabel.setAlignment(Pos.TOP_CENTER);
+        titleLabel.setStyle("-fx-font-size: 30 px; -fx-font-weight: bold;");
 
-        // monthsection
+        // monthBox
         monthSelection = new ComboBox<>();
         monthSelection.setMinWidth(200);
         List<String> months = Arrays.asList("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
         monthSelection.getItems().addAll(months);
         monthSelection.setValue("JAN");
+        monthSelection.setStyle("-fx-font-size: 16px;");
         Label monthLabel = new Label("Choose Month");
-        monthSection.getChildren().addAll(monthLabel,monthSelection);
+        monthBox.getChildren().addAll(monthLabel, monthSelection);
 
-        // categorySection
+        // categoryBox
         categorySelection = new ComboBox<>();
         categorySelection.setMinWidth(200);
         List<String> categories = Arrays.asList("Utility", "Groceries", "Transportation", "Insurance", "Others");
         categorySelection.getItems().addAll(categories);
         categorySelection.setValue("Utility");
+        categorySelection.setStyle("-fx-font-size: 16px;");
         Label categoryLabel = new Label("Choose Category");
-        categorySection.getChildren().addAll(categoryLabel,categorySelection);
+        categoryBox.getChildren().addAll(categoryLabel, categorySelection);
 
 
-        // amountSection + budget button
+        // amountBox + budget button + feedback label
         amountField = new TextField();
         amountField.setPromptText("Enter Budget Amount Here");
         amountField.setMaxSize(200, 20);
         Button addButton = new Button("Set Budget");
-        amountSection.getChildren().addAll(amountField,addButton);
-
-        // Feedback label
+        addButton.setStyle("-fx-font-size: 16px;");
         feedbackLabel = new Label();
         feedbackLabel.setTextFill(Color.GREEN);
+        amountBox.getChildren().addAll(amountField, addButton, feedbackLabel);
 
-        // Labels for displaying budget and expenses
+
+        //budgetBox
         budgetLabel = new Label();
+        budgetBox.getChildren().addAll(budgetLabel);
+
+
+
+        //expenseBox
         expenseLabel = new Label();
+        expenseBox.getChildren().addAll(expenseLabel);
 
-        // Comparison result label
+
+        //comparisonBox
         comparisonLabel = new Label();
-        comparisonLabel.setStyle("-fx-font-weight: bold;");
+        comparisonBox.getChildren().addAll(comparisonLabel);
+        comparisonLabel.setStyle("-fx-font-weight: bold");
 
-        comparisonLabel.setStyle("-fx-border-color: #000000;");
-        budgetLabel.setStyle("-fx-border-color: #000000;");
-        expenseLabel.setStyle("-fx-border-color: #000000;");
+        budgetLabel.setStyle("-fx-font-size: 16px; -fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
+        expenseLabel.setStyle("-fx-font-size: 16px; -fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
+        comparisonLabel.setStyle("-fx-font-size: 18px; -fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
+
+
 
         // Set up event handlers
         addButton.setOnAction(e -> addBudget());
         monthSelection.setOnAction(e -> displayComparison());
         categorySelection.setOnAction(e -> displayComparison());
-        titleLabel.setAlignment(Pos.TOP_CENTER);
+
 
         // getchildren
-        leftBox.getChildren().addAll(monthSection, categorySection, amountSection, feedbackLabel);
-        rightBox.getChildren().addAll(budgetLabel, expenseLabel, comparisonLabel);
+        leftBox.getChildren().addAll(monthBox, categoryBox, amountBox);
+        rightBox.getChildren().addAll(budgetBox, expenseBox, comparisonBox);
         box.getChildren().addAll(leftBox, rightBox);
         box.setAlignment(Pos.CENTER);
         root.getChildren().addAll(titleLabel, box);
@@ -114,20 +128,20 @@ public class BudgetView extends Application {
     private void addBudget() {
         String month = monthSelection.getValue();
         String category = categorySelection.getValue();
-        double amount = 0;
+        double tempAmount = 0;
 
         try {
-            amount = Double.parseDouble(amountField.getText());
+            tempAmount = Double.parseDouble(amountField.getText());
         } catch (NumberFormatException e) {
             feedbackLabel.setText("Please enter a valid amount.");
             return;
         }
 
         // Create a BudgetApp object and save to file
-        BudgetApp budget = new BudgetApp(userId, month, category, amount);
+        BudgetApp budget = new BudgetApp(userId, month, category, tempAmount);
         budget.SaveBudget();
 
-        feedbackLabel.setText("Budget added/updated successfully!");
+        feedbackLabel.setText("Budget added & updated successfully!");
         displayComparison();
 
         // Clear input fields
@@ -147,28 +161,41 @@ public class BudgetView extends Application {
         }
 
         double expenseAmount = 0;
-        if (category.equals("Utility")) {
-            expenseAmount = expenses[0];
-        } else if (category.equals("Groceries")) {
-            expenseAmount = expenses[1];
-        } else if (category.equals("Transportation")) {
-            expenseAmount = expenses[2];
-        } else if (category.equals("Insurance")) {
-            expenseAmount = expenses[3];
-        } else if (category.equals("Others")) {
-            expenseAmount = expenses[4];
+
+        switch (category) {
+            case "Utility":
+                expenseAmount = expenses[0];
+                break;
+            case "Groceries":
+                expenseAmount = expenses[1];
+                break;
+            case "Transportation":
+                expenseAmount = expenses[2];
+                break;
+            case "Insurance":
+                expenseAmount = expenses[3];
+                break;
+            case "Others":
+                expenseAmount = expenses[4];
+                break;
         }
 
-        budgetLabel.setText("Budget for " + category + " in " + month + ": RM" + budgetAmount);
-        expenseLabel.setText("Total expenses for " + category + " in " + month + ": RM" + expenseAmount);
+
+        budgetLabel.setText("Total Budget For " + category + String.format("\n\t%.2f", budgetAmount));
+
+        expenseLabel.setText("Total Expense For " + category + String.format("\n\t%.2f", expenseAmount));
+
+
 
         if (expenseAmount > budgetAmount) {
             comparisonLabel.setText("You have exceeded the budget!");
             comparisonLabel.setTextFill(Color.RED);
 
+
         } else if (expenseAmount <= budgetAmount) {
             comparisonLabel.setText("You are within the budget!");
             comparisonLabel.setTextFill(Color.GREEN);
+
         }
     }
 
