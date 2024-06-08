@@ -29,19 +29,19 @@ public class BudgetView extends Application {
     @Override
     public void start(Stage stage) {
         VBox root = new VBox(50);
-        HBox box = new HBox(40);
-        VBox leftBox = new VBox(40);
-        VBox rightBox = new VBox(40);
+        HBox bottomBox = new HBox(40);
+        VBox midBox = new VBox(20);
+        HBox topBox = new HBox(20);
         VBox monthBox = new VBox(10);
         VBox categoryBox = new VBox(10);
-        VBox amountBox = new VBox(10);
+        HBox amountBox = new HBox(10);
         VBox expenseBox = new VBox(10);
         VBox comparisonBox = new VBox(10);
         VBox budgetBox = new VBox(10);
 
-
-        // Title
-        Label titleLabel = new Label("Budget Planning");
+//topBox//
+        // title
+        Label titleLabel = new Label("BUDGET PLANNING FOR:");
         titleLabel.setAlignment(Pos.TOP_CENTER);
         titleLabel.setStyle("-fx-font-size: 30 px; -fx-font-weight: bold;");
 
@@ -52,9 +52,11 @@ public class BudgetView extends Application {
         monthSelection.getItems().addAll(months);
         monthSelection.setValue("JAN");
         monthSelection.setStyle("-fx-font-size: 16px;");
-        Label monthLabel = new Label("Choose Month");
-        monthBox.getChildren().addAll(monthLabel, monthSelection);
+        monthBox.getChildren().addAll(monthSelection);
+        topBox.getChildren().addAll(titleLabel, monthSelection);
+        topBox.setAlignment(Pos.TOP_CENTER);
 
+//midBox
         // categoryBox
         categorySelection = new ComboBox<>();
         categorySelection.setMinWidth(200);
@@ -68,25 +70,26 @@ public class BudgetView extends Application {
 
         // amountBox + budget button + feedback label
         amountField = new TextField();
-        amountField.setPromptText("Enter Budget Amount Here");
-        amountField.setMaxSize(200, 20);
+        amountField.setPromptText("Enter Budget Amount");
+        amountField.setMaxSize(200, 40);
         Button addButton = new Button("Set Budget");
         addButton.setStyle("-fx-font-size: 16px;");
         feedbackLabel = new Label();
         feedbackLabel.setTextFill(Color.GREEN);
-        amountBox.getChildren().addAll(amountField, addButton, feedbackLabel);
+        amountBox.getChildren().addAll(amountField, addButton);
+        amountBox.setAlignment(Pos.CENTER);
+        categoryBox.setAlignment(Pos.CENTER);
+        midBox.getChildren().addAll(categoryBox, amountBox, feedbackLabel);
+        midBox.setAlignment(Pos.CENTER);
 
-
+//bottomBox
         //budgetBox
         budgetLabel = new Label();
         budgetBox.getChildren().addAll(budgetLabel);
 
-
-
         //expenseBox
         expenseLabel = new Label();
         expenseBox.getChildren().addAll(expenseLabel);
-
 
         //comparisonBox
         comparisonLabel = new Label();
@@ -97,25 +100,18 @@ public class BudgetView extends Application {
         expenseLabel.setStyle("-fx-font-size: 16px; -fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
         comparisonLabel.setStyle("-fx-font-size: 18px; -fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
 
-
+        bottomBox.getChildren().addAll(budgetBox, expenseBox, comparisonBox);
+        bottomBox.setAlignment(Pos.CENTER);
 
         // Set up event handlers
         addButton.setOnAction(e -> addBudget());
         monthSelection.setOnAction(e -> displayComparison());
         categorySelection.setOnAction(e -> displayComparison());
 
-
-        // getchildren
-        leftBox.getChildren().addAll(monthBox, categoryBox, amountBox);
-        rightBox.getChildren().addAll(budgetBox, expenseBox, comparisonBox);
-        box.getChildren().addAll(leftBox, rightBox);
-        box.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(titleLabel, box);
-        root.setAlignment(Pos.CENTER);
-
+        root.getChildren().addAll(topBox, midBox, bottomBox);
 
         // Create scene and set on stage
-        Scene scene = new Scene(root, 800, 500);
+        Scene scene = new Scene(root, 840, 520);
         stage.setTitle("Budget Planning");
         stage.setScene(scene);
 
@@ -181,14 +177,13 @@ public class BudgetView extends Application {
         }
 
 
-        budgetLabel.setText("Total Budget For " + category + String.format("\n\t%.2f", budgetAmount));
+        budgetLabel.setText("Budgeted For " + category + String.format("\n\tRM%.2f", budgetAmount));
 
-        expenseLabel.setText("Total Expense For " + category + String.format("\n\t%.2f", expenseAmount));
-
+        expenseLabel.setText("Total Expense For " + category + String.format("\n\tRM%.2f", expenseAmount));
 
 
         if (expenseAmount > budgetAmount) {
-            comparisonLabel.setText("You have exceeded the budget!");
+            comparisonLabel.setText("You have exceeded the budget!!!");
             comparisonLabel.setTextFill(Color.RED);
 
 
