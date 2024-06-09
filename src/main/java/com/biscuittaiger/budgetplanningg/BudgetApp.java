@@ -27,23 +27,23 @@ public class BudgetApp {
     public static void saveBudget(String userId, String month, String budgetCategory, double budgetAmount) {
         boolean found = false;
 
-        for (BudgetApp entry : budgetList) {
-            if (entry.userId.equals(userId) && entry.month.equals(month) && entry.budgetCategory.equals(budgetCategory)) {
-                entry.budgetAmount = budgetAmount;
+        for (BudgetApp budgetItem : budgetList) {
+            if (budgetItem.userId.equals(userId) && budgetItem.month.equals(month) && budgetItem.budgetCategory.equals(budgetCategory)) {
+                budgetItem.budgetAmount = budgetAmount;
                 found = true;
                 break;
             }
         }
 
         if (!found) {
-            BudgetApp newBudgetEntry = new BudgetApp(userId, month, budgetCategory, budgetAmount);
-            budgetList.add(newBudgetEntry);
+            BudgetApp newBudgetItem = new BudgetApp(userId, month, budgetCategory, budgetAmount);
+            budgetList.add(newBudgetItem);
         }
 
         // Write to text file
         try (FileWriter writer = new FileWriter(BudgetFile)) {
-            for (BudgetApp entry : budgetList) {
-                writer.write(entry.userId + "," + entry.month + "," + entry.budgetCategory + "," + entry.budgetAmount + "\n");
+            for (BudgetApp budgetItem : budgetList) {
+                writer.write(budgetItem.userId + "," + budgetItem.month + "," + budgetItem.budgetCategory + "," + budgetItem.budgetAmount + "\n");
             }
         } catch (IOException e) {
             System.err.println("Error writing to file: " + e.getMessage());
@@ -54,9 +54,9 @@ public class BudgetApp {
     public static double readBudget(String userId, String month, String category) {
         double budgetAmount = 0.00;
 
-        for (BudgetApp entry : budgetList) {
-            if (entry.userId.equals(userId) && entry.month.equals(month) && entry.budgetCategory.equals(category)) {
-                budgetAmount = entry.budgetAmount;
+        for (BudgetApp budgetItem : budgetList) {
+            if (budgetItem.userId.equals(userId) && budgetItem.month.equals(month) && budgetItem.budgetCategory.equals(category)) {
+                budgetAmount = budgetItem.budgetAmount;
                 break;
             }
         }
@@ -109,8 +109,8 @@ public class BudgetApp {
                 String line = scanner.nextLine();
                 String[] delimiter = line.split(",");
                 if (delimiter.length == 4) {
-                    BudgetApp budget = new BudgetApp(delimiter[0], delimiter[1],delimiter[2], Double.parseDouble(delimiter[3]));
-                    budgetList.add(budget);
+                    BudgetApp budgetItem = new BudgetApp(delimiter[0], delimiter[1], delimiter[2], Double.parseDouble(delimiter[3]));
+                    budgetList.add(budgetItem);
                 }
             }
         } catch (FileNotFoundException e) {
