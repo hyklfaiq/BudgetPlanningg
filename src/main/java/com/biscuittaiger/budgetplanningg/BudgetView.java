@@ -113,9 +113,9 @@ public class BudgetView extends Application {
         withinBudgetLabel.setStyle("-fx-font-size: 20px; -fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
 
         // Set up event handlers
-        addButton.setOnAction(e -> addBudget());
-        monthSelection.setOnAction(e -> withinBudget());
-        categorySelection.setOnAction(e -> withinBudget());
+        addButton.setOnAction(e -> setBudget());
+        monthSelection.setOnAction(e -> checkBudgetStatus());
+        categorySelection.setOnAction(e ->  checkBudgetStatus());
 
         root.getChildren().addAll(monthBox, topBox, midBox, bottomBox, withinBudgetBox);
 
@@ -126,11 +126,11 @@ public class BudgetView extends Application {
 
         stage.show();
 
-        // Display within budget for utility
-        withinBudget();
+        // Display initial status
+        checkBudgetStatus();
     }
 
-    private void addBudget() {
+    private void setBudget() {
         String month = monthSelection.getValue();
         String category = categorySelection.getValue();
         double tempAmount;
@@ -147,13 +147,13 @@ public class BudgetView extends Application {
         BudgetApp.saveBudget(userId, month, category, tempAmount);
 
         feedbackLabel.setText("Budget added & updated successfully!");
-        withinBudget();
+        checkBudgetStatus();
 
         // Clear input fields
         amountField.clear();
     }
 
-    private void withinBudget() {
+    private void checkBudgetStatus() {
         String month = monthSelection.getValue();
         String category = categorySelection.getValue();
         double budgetAmount = BudgetApp.readBudget(userId, month, category);

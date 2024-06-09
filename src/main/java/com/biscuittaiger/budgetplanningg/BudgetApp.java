@@ -27,11 +27,9 @@ public class BudgetApp {
     public static void saveBudget(String userId, String month, String budgetCategory, double budgetAmount) {
         boolean found = false;
 
-        for (int i = 0; i < budgetList.size(); i++) {
-            BudgetApp entry = budgetList.get(i);
+        for (BudgetApp entry : budgetList) {
             if (entry.userId.equals(userId) && entry.month.equals(month) && entry.budgetCategory.equals(budgetCategory)) {
                 entry.budgetAmount = budgetAmount;
-                budgetList.set(i, entry);
                 found = true;
                 break;
             }
