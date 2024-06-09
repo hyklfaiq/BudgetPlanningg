@@ -17,8 +17,6 @@ public class BudgetApp {
         this.budgetAmount = budgetAmount;
     }
 
-
-
     // Save budget to file
     public void SaveBudget() {
         ArrayList<String> budgetFileContent = new ArrayList<>();
@@ -74,7 +72,7 @@ public class BudgetApp {
     public static double[] readAndCalculateExpenses(String userId, String month) throws FileNotFoundException {
         double utilitiesExpense = 0, groceriesExpense = 0, transportationExpense = 0, insuranceExpense = 0, otherExpense = 0;
 
-        Scanner readFile = new Scanner(new File("C://Users//faiqb//OneDrive//Desktop//Coding//BudgetPlanningg//TotalExpense.txt"));
+        Scanner readFile = new Scanner(new File("TotalExpense.txt"));
         try {
             while (readFile.hasNext()) {
                 String line = readFile.nextLine();
