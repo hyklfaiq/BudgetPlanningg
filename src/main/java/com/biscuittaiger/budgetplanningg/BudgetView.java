@@ -28,6 +28,9 @@ public class BudgetView extends Application {
 
     @Override
     public void start(Stage stage) {
+        // Load budgets from file
+        BudgetApp.loadBudgetsFromFile();
+
         VBox root = new VBox(25);
         HBox topBox = new HBox(10);
         VBox midBox = new VBox(20);
@@ -68,7 +71,6 @@ public class BudgetView extends Application {
         Label categoryLabel = new Label("Choose Category");
         categoryBox.getChildren().addAll(categoryLabel, categorySelection);
 
-
         // amountBox + budget button + feedback label
         amountField = new TextField();
         amountField.setPromptText("Enter Budget Amount");
@@ -99,7 +101,7 @@ public class BudgetView extends Application {
         budgetLabel.setStyle("-fx-font-size: 16px; -fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
         expenseLabel.setStyle("-fx-font-size: 16px; -fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
 
-        bottomBox.getChildren().addAll(budgetBox, expenseBox );
+        bottomBox.getChildren().addAll(budgetBox, expenseBox);
         bottomBox.setAlignment(Pos.CENTER);
 
         //comparisonBox
@@ -115,7 +117,7 @@ public class BudgetView extends Application {
         monthSelection.setOnAction(e -> withinBudget());
         categorySelection.setOnAction(e -> withinBudget());
 
-        root.getChildren().addAll(monthBox,topBox, midBox, bottomBox, withinBudgetBox);
+        root.getChildren().addAll(monthBox, topBox, midBox, bottomBox, withinBudgetBox);
 
         // Create scene and set on stage
         Scene scene = new Scene(root, 840, 520);
@@ -131,18 +133,18 @@ public class BudgetView extends Application {
     private void addBudget() {
         String month = monthSelection.getValue();
         String category = categorySelection.getValue();
-        double tempAmount = 0;
+        double tempAmount;
 
         try {
             tempAmount = Double.parseDouble(amountField.getText());
         } catch (NumberFormatException e) {
             feedbackLabel.setText("Please enter a valid amount.");
+            feedbackLabel.setTextFill(Color.RED);
             return;
         }
 
-        // Create a BudgetApp object and save to file
-        BudgetApp budget = new BudgetApp(userId, month, category, tempAmount);
-        budget.SaveBudget();
+        // Save budget to ArrayList and file
+        BudgetApp.saveBudget(userId, month, category, tempAmount);
 
         feedbackLabel.setText("Budget added & updated successfully!");
         withinBudget();
@@ -189,15 +191,14 @@ public class BudgetView extends Application {
         if (expenseAmount > budgetAmount) {
             withinBudgetLabel.setText("You have exceeded\n the budget!!!");
             withinBudgetLabel.setTextFill(Color.RED);
-
-        } else if (expenseAmount <= budgetAmount) {
+        } else {
             withinBudgetLabel.setText("You are still within\n the budget!!!");
             withinBudgetLabel.setTextFill(Color.GREEN);
-
         }
     }
 
-    public static void main(String[] args) throws Exception {
+
+    public static void main(String[] args) {
         launch();
     }
 }

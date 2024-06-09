@@ -1,10 +1,16 @@
 package com.biscuittaiger.budgetplanningg;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class BudgetApp {
+    private static ArrayList<BudgetApp> budgetList = new ArrayList<>();
+    private static final String BudgetFile = "BudgetData.txt";
+
     private String userId;
     private String month;
     private String budgetCategory;
@@ -17,58 +23,50 @@ public class BudgetApp {
         this.budgetAmount = budgetAmount;
     }
 
-    // Save budget to file
-    public void SaveBudget() {
-        ArrayList<String> budgetFileContent = new ArrayList<>();
+    // Save budget to ArrayList and text file
+    public static void saveBudget(String userId, String month, String budgetCategory, double budgetAmount) {
         boolean found = false;
 
-        try (Scanner scanner = new Scanner(new File("BudgetData.txt"))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] delimiter = line.split(",");
-                if (delimiter[0].equals(userId) && delimiter[1].equals(month) && delimiter[2].equals(budgetCategory)) {
-                    delimiter[3] = String.valueOf(budgetAmount); // update the amount
-                    found = true;
-                }
-                budgetFileContent.add(String.join(",", delimiter));
+        for (int i = 0; i < budgetList.size(); i++) {
+            BudgetApp entry = budgetList.get(i);
+            if (entry.userId.equals(userId) && entry.month.equals(month) && entry.budgetCategory.equals(budgetCategory)) {
+                entry.budgetAmount = budgetAmount;
+                budgetList.set(i, entry);
+                found = true;
+                break;
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("File not found: " + e.getMessage());
         }
 
         if (!found) {
-            budgetFileContent.add(userId + "," + month + "," + budgetCategory + "," + budgetAmount);
+            BudgetApp newBudgetEntry = new BudgetApp(userId, month, budgetCategory, budgetAmount);
+            budgetList.add(newBudgetEntry);
         }
 
-        try (PrintWriter out = new PrintWriter(new FileWriter("BudgetData.txt"))) {
-            for (String line : budgetFileContent) {
-                out.println(line);
+        // Write to text file
+        try (FileWriter writer = new FileWriter(BudgetFile)) {
+            for (BudgetApp entry : budgetList) {
+                writer.write(entry.userId + "," + entry.month + "," + entry.budgetCategory + "," + entry.budgetAmount + "\n");
             }
         } catch (IOException e) {
             System.err.println("Error writing to file: " + e.getMessage());
         }
     }
 
-    // Read budget for a specific month and category
+    // Read budget from ArrayList
     public static double readBudget(String userId, String month, String category) {
         double budgetAmount = 0.00;
 
-        try (Scanner scanner = new Scanner(new File("BudgetData.txt"))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] delimiter = line.split(",");
-                if (delimiter[0].equals(userId) && delimiter[1].equals(month) && delimiter[2].equals(category)) {
-                    budgetAmount = Double.parseDouble(delimiter[3]);
-                    break;
-                }
+        for (BudgetApp entry : budgetList) {
+            if (entry.userId.equals(userId) && entry.month.equals(month) && entry.budgetCategory.equals(category)) {
+                budgetAmount = entry.budgetAmount;
+                break;
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("File not found: " + e.getMessage());
         }
 
         return budgetAmount;
     }
 
+    // Read expenses from file and calculate expenses for each category
     public static double[] readAndCalculateExpenses(String userId, String month) throws FileNotFoundException {
         double utilitiesExpense = 0, groceriesExpense = 0, transportationExpense = 0, insuranceExpense = 0, otherExpense = 0;
 
@@ -102,5 +100,23 @@ public class BudgetApp {
         }
 
         return new double[]{utilitiesExpense, groceriesExpense, transportationExpense, insuranceExpense, otherExpense};
+    }
+
+    // Load budgets from file into ArrayList
+    public static void loadBudgetsFromFile() {
+        budgetList.clear();
+
+        try (Scanner scanner = new Scanner(new File(BudgetFile))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] delimiter = line.split(",");
+                if (delimiter.length == 4) {
+                    BudgetApp budget = new BudgetApp(delimiter[0], delimiter[1],delimiter[2], Double.parseDouble(delimiter[3]));
+                    budgetList.add(budget);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+        }
     }
 }
