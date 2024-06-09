@@ -1,2 +1,0 @@
-user123,JAN,Transportation,599.0
-user123,FEB,Transportation,1111.0

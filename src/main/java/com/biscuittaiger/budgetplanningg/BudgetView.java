@@ -1,6 +1,7 @@
 package com.biscuittaiger.budgetplanningg;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -51,6 +52,7 @@ public class BudgetView extends Application {
         monthSelection.setStyle("-fx-font-size: 12 px;");
         monthBox.getChildren().addAll(monthSelection);
         monthBox.setAlignment(Pos.TOP_LEFT);
+        VBox.setMargin(monthSelection, new Insets(10, 0, 0, 0));
 
         //topBox
         //title
