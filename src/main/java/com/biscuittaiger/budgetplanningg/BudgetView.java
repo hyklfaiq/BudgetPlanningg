@@ -13,9 +13,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class BudgetView extends Application {
     private ComboBox<String> monthSelection;
@@ -26,11 +31,13 @@ public class BudgetView extends Application {
     private Label expenseLabel;
     private Label withinBudgetLabel;
     private String userId = "user123";
+    private static final String BudgetFile = "BudgetData.txt";
+    private static ArrayList<BudgetApp> budgetList = new ArrayList<>();
 
     @Override
     public void start(Stage stage) {
         // Load budgets from file
-        BudgetApp.loadBudgetsFromFile();
+        loadBudgetsFromFile();
 
         VBox root = new VBox(25);
         HBox topBox = new HBox(10);
@@ -66,7 +73,7 @@ public class BudgetView extends Application {
         // categoryBox
         categorySelection = new ComboBox<>();
         categorySelection.setMinWidth(200);
-        List<String> categories = Arrays.asList("Utility", "Groceries", "Transportation", "Insurance", "Others");
+        List<String> categories = Arrays.asList("Shopping", "Education", "Electronics", "Entertainment", "Food and Beverages", "Health and Beauty", "Medical", "Shopping", "Transportation", "Other Expenses");
         categorySelection.getItems().addAll(categories);
         categorySelection.setValue("Utility");
         categorySelection.setStyle("-fx-font-size: 16px;");
@@ -116,8 +123,8 @@ public class BudgetView extends Application {
 
         // Set up event handlers
         addButton.setOnAction(e -> setBudget());
-        monthSelection.setOnAction(e -> checkBudgetStatus());
-        categorySelection.setOnAction(e ->  checkBudgetStatus());
+        monthSelection.setOnAction(e -> displayBudgetStatus());
+        categorySelection.setOnAction(e -> displayBudgetStatus());
 
         root.getChildren().addAll(monthBox, topBox, midBox, bottomBox, withinBudgetBox);
 
@@ -129,11 +136,12 @@ public class BudgetView extends Application {
         stage.show();
 
         // Display initial status
-        checkBudgetStatus();
+        displayBudgetStatus();
     }
 
     private void setBudget() {
         String month = monthSelection.getValue();
+        int monthInt = getMonthAsInt(month);
         String category = categorySelection.getValue();
         double tempAmount;
 
@@ -146,22 +154,23 @@ public class BudgetView extends Application {
         }
 
         // Save budget to ArrayList and file
-        BudgetApp.saveBudget(userId, month, category, tempAmount);
+        saveBudget(userId, monthInt, category, tempAmount);
 
         feedbackLabel.setText("Budget added & updated successfully!");
-        checkBudgetStatus();
+        displayBudgetStatus();
 
         // Clear input fields
         amountField.clear();
     }
 
-    private void checkBudgetStatus() {
+    private void displayBudgetStatus() {
         String month = monthSelection.getValue();
+        int monthInt = getMonthAsInt(month);
         String category = categorySelection.getValue();
-        double budgetAmount = BudgetApp.readBudget(userId, month, category);
+        double budgetAmount = readBudget(userId, monthInt, category);
         double[] expenses;
         try {
-            expenses = BudgetApp.readAndCalculateExpenses(userId, month);
+            expenses = BudgetApp.readAndCalculateExpenses(userId, monthInt);
         } catch (FileNotFoundException e) {
             feedbackLabel.setText("Expenses file not found.");
             return;
@@ -170,20 +179,32 @@ public class BudgetView extends Application {
         double expenseAmount = 0;
 
         switch (category) {
-            case "Utility":
+            case "Shopping":
                 expenseAmount = expenses[0];
                 break;
-            case "Groceries":
+            case "Education":
                 expenseAmount = expenses[1];
                 break;
-            case "Transportation":
+            case "Electronics":
                 expenseAmount = expenses[2];
                 break;
-            case "Insurance":
+            case "Entertainment":
                 expenseAmount = expenses[3];
                 break;
-            case "Others":
+            case "Food and Beverages":
                 expenseAmount = expenses[4];
+                break;
+            case "Health and Beauty":
+                expenseAmount = expenses[5];
+                break;
+            case "Medical":
+                expenseAmount = expenses[6];
+                break;
+            case "Transportation":
+                expenseAmount = expenses[7];
+                break;
+            case "Other Expenses":
+                expenseAmount = expenses[8];
                 break;
         }
 
@@ -199,8 +220,95 @@ public class BudgetView extends Application {
         }
     }
 
+    // Save budget to ArrayList and text file
+    private static void saveBudget(String userId, int month, String budgetCategory, double budgetAmount) {
+        boolean found = false;
 
-    public static void main(String[] args) {
+        for (BudgetApp budgetItem : budgetList) {
+            if (budgetItem.getUserId().equals(userId) && budgetItem.getMonth()==month && budgetItem.getBudgetCategory().equals(budgetCategory)) {
+               budgetItem.setBudgetAmount(budgetAmount);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            BudgetApp BudgetItem = new BudgetApp(userId, month, budgetCategory, budgetAmount);
+            budgetList.add(BudgetItem);
+        }
+
+        // Write to text file
+        try (FileWriter writer = new FileWriter(BudgetFile)) {
+            for (BudgetApp budgetItem : budgetList) {
+                writer.write(budgetItem.getUserId() + "," + budgetItem.getMonth() + "," + budgetItem.getBudgetCategory() + "," + budgetItem.getBudgetAmount() + "\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
+        }
+    }
+
+    // Read budget from ArrayList
+    private static double readBudget(String userId, int month, String category) {
+        for (BudgetApp budgetItem : budgetList) {
+            if (budgetItem.getUserId().equals(userId) && budgetItem.getMonth() == month && budgetItem.getBudgetCategory().equals(category)) {
+                return budgetItem.getBudgetAmount();
+            }
+        }
+        return 0.00; // Default value if no budget is found
+    }
+
+
+    // Load budgets from file into ArrayList
+    private static void loadBudgetsFromFile() {
+        budgetList.clear();
+
+        try (Scanner scanner = new Scanner(new File(BudgetFile))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] delimiter = line.split(",");
+                if (delimiter.length == 4) {
+                    BudgetApp budgetItem = new BudgetApp(delimiter[0], Integer.parseInt(delimiter[1]), delimiter[2], Double.parseDouble(delimiter[3]));
+                    budgetList.add(budgetItem);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+        }
+    }
+
+    private int getMonthAsInt(String month) {
+        switch (month) {
+            case "JAN":
+                return 1;
+            case "FEB":
+                return 2;
+            case "MAR":
+                return 3;
+            case "APR":
+                return 4;
+            case "MAY":
+                return 5;
+            case "JUN":
+                return 6;
+            case "JUL":
+                return 7;
+            case "AUG":
+                return 8;
+            case "SEP":
+                return 9;
+            case "OCT":
+                return 10;
+            case "NOV":
+                return 11;
+            case "DEC":
+                return 12;
+            default:
+                return -1; // invalid
+        }
+    }
+
+
+    public static void main(String[] args) throws Exception {
         launch();
     }
 }

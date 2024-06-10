@@ -1,0 +1,4 @@
+user123,1,Utility,1.0
+user123,2,Transportation,500.0
+user123,1,Groceries,800.0
+user123,1,Medical,500.0
