@@ -50,6 +50,8 @@ public class BudgetView extends Application {
         VBox withinBudgetBox = new VBox(10);
         VBox budgetBox = new VBox(10);
 
+
+        //topBox
         // monthBox
         monthSelection = new ComboBox<>();
         monthSelection.setMinWidth(200);
@@ -61,7 +63,7 @@ public class BudgetView extends Application {
         monthBox.setAlignment(Pos.TOP_LEFT);
         VBox.setMargin(monthSelection, new Insets(10, 0, 0, 0));
 
-        //topBox
+
         //title
         Label titleLabel = new Label("BUDGET PLANNING");
         titleLabel.setAlignment(Pos.TOP_CENTER);
@@ -73,9 +75,9 @@ public class BudgetView extends Application {
         // categoryBox
         categorySelection = new ComboBox<>();
         categorySelection.setMinWidth(200);
-        List<String> categories = Arrays.asList("Shopping", "Education", "Electronics", "Entertainment", "Food and Beverages", "Health and Beauty", "Medical", "Shopping", "Transportation", "Other Expenses");
+        List<String> categories = Arrays.asList("Shopping", "Education", "Electronics", "Entertainment", "Food and Beverages", "Health and Beauty", "Medical", "Transportation", "Other Expenses");
         categorySelection.getItems().addAll(categories);
-        categorySelection.setValue("Utility");
+        categorySelection.setValue("Shopping");
         categorySelection.setStyle("-fx-font-size: 16px;");
         Label categoryLabel = new Label("Choose Category");
         categoryBox.getChildren().addAll(categoryLabel, categorySelection);
@@ -137,6 +139,7 @@ public class BudgetView extends Application {
 
         // Display initial status
         displayBudgetStatus();
+
     }
 
     private void setBudget() {
@@ -168,6 +171,7 @@ public class BudgetView extends Application {
         int monthInt = getMonthAsInt(month);
         String category = categorySelection.getValue();
         double budgetAmount = readBudget(userId, monthInt, category);
+        double totalBudgetMonthly = calculateTotalBudgetForMonth(monthInt);
         double[] expenses;
         try {
             expenses = BudgetApp.readAndCalculateExpenses(userId, monthInt);
@@ -218,6 +222,7 @@ public class BudgetView extends Application {
             withinBudgetLabel.setText("You are still within\n the budget!!!");
             withinBudgetLabel.setTextFill(Color.GREEN);
         }
+
     }
 
     // Save budget to ArrayList and text file
@@ -305,8 +310,56 @@ public class BudgetView extends Application {
             default:
                 return -1; // invalid
         }
+
+
     }
 
+    private double calculateTotalBudgetForMonth(int month) {
+        double totalBudget = 0;
+        for (BudgetApp budgetItem : budgetList) {
+            if (budgetItem.getMonth() == month) {
+                totalBudget += budgetItem.getBudgetAmount();
+            }
+        }
+       return totalBudget;
+    }
+
+    private void updateDashboardBudget(String userId, int month, double newTotalBudget) {
+        // Define the path to the file
+        String filePath = "your_file_path_here.txt"; // Replace this with the actual file path
+
+        // Read the file and update the totalBudget for the specified user ID and month
+        try {
+            File file = new File(filePath);
+            Scanner scanner = new Scanner(file);
+            StringBuilder newData = new StringBuilder();
+
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] data = line.split(",");
+
+                // Check if the line corresponds to the given user ID and month
+                if (data.length == 7 && data[0].equals(userId) && Integer.parseInt(data[1]) == month) {
+                    // Update the totalBudget
+                    data[5] = String.valueOf(newTotalBudget);
+                    line = String.join(",", data);
+                }
+
+                newData.append(line).append("\n");
+            }
+            scanner.close();
+
+            // Write the updated data back to the file
+            FileWriter writer = new FileWriter(filePath);
+            writer.write(newData.toString());
+            writer.close();
+
+            System.out.println("Total budget updated successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error updating total budget: " + e.getMessage());
+        }
+    }
 
     public static void main(String[] args) throws Exception {
         launch();
